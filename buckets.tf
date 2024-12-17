@@ -1,11 +1,8 @@
 // InputBucket: S3 input bucket to be replicated to by customers
 resource "aws_s3_bucket" "input_bucket" {
-  bucket = "gs-log-forwarder-${local.log_forwarder_id}-input"
+  bucket = "ghost-${local.log_forwarder_id}-input"
 
-  tags = {
-    "gs:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"   = local.resource_group
-  }
+  tags = local.tags
 }
 
 // InputBucket: Lifecycle. Clear out logs from the input bucket after a day.
@@ -20,12 +17,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "input_bucket" {
   }
 }
 
-// IngestBucket: S3 bucket for cloud-agnostic log format
+// IngestBucket: S3 bucket Ghost Platform gets cloud-agnostic logs from
 resource "aws_s3_bucket" "ingest_bucket" {
-  bucket = "gs-log-forwarder-${local.log_forwarder_id}-ingest"
+  bucket = "ghost-${local.log_forwarder_id}-ingest"
 
-  tags = {
-    "gs:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"   = local.resource_group
-  }
+  tags = local.tags
 }

@@ -1,6 +1,6 @@
 // LogConverter: Lambda function
 resource "aws_lambda_function" "log_converter" {
-  function_name = "gs-${local.log_forwarder_id}-function" // had resource Group in front before
+  function_name = "ghost-${local.log_forwarder_id}-function"
   image_uri = local.lambda_image
   package_type = "Image"
   architectures = ["arm64"]
@@ -14,10 +14,7 @@ resource "aws_lambda_function" "log_converter" {
     }
   }
 
-  tags = {
-    "gs:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"   = local.resource_group
-  }
+  tags = local.tags
 }
 
 // LogConverter: Lambda permission
@@ -30,15 +27,12 @@ resource "aws_lambda_permission" "log_converter" {
 
 // LogConverter: IAM role
 resource "aws_iam_role" "log_converter_role" {
-  name = "gs-${local.log_forwarder_id}-lambda"
+  name = "ghost-${local.log_forwarder_id}-lambda"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
   path                  = "/"
   force_detach_policies = true
 
-  tags = {
-    "gs:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"   = local.resource_group
-  }
+  tags = local.tags
 }
 
 // LogConverter: Assume role definition
@@ -61,8 +55,8 @@ resource "aws_iam_role_policy_attachment" "log_converter_bucket_access" {
 
 // LogConverter: IAM policy
 resource "aws_iam_policy" "lambda_bucket_access" {
-  name = "gs-${local.log_forwarder_id}-access"
-  description = "IAM policy for Ghost Log Fowarder to access S3 buckets"
+  name = "ghost-${local.log_forwarder_id}-access"
+  description = "IAM policy for Ghost Log Forwarder to access S3 buckets"
   policy = data.aws_iam_policy_document.lambda_bucket_access.json
 }
 

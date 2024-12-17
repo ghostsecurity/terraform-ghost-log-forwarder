@@ -1,5 +1,4 @@
-
-// LogShipper: Allow GCP STS access.
+// LogShipper: Allow Ghost service account to assume role in order to copy logs into the platform
 data "aws_iam_policy_document" "log_shipper_assume_role" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
@@ -62,23 +61,20 @@ data "aws_iam_policy_document" "log_shipper_policy" {
 
 // LogShipper: IAM policy
 resource "aws_iam_policy" "log_shipper_policy" {
-  name = "gs-${local.log_forwarder_id}-shipper"
+  name = "ghost-${local.log_forwarder_id}-shipper"
   description = "IAM policy for Ghost Log Shipper to send logs"
   policy = data.aws_iam_policy_document.log_shipper_policy.json
 }
 
 // LogShipper: Role
 resource "aws_iam_role" "log_shipper_role" {
-  name        = "gs-${local.log_forwarder_id}-ingest"
+  name        = "ghost-${local.log_forwarder_id}-ingest"
   description = "Allows read access to the ingest bucket"
   assume_role_policy = data.aws_iam_policy_document.log_shipper_assume_role.json
 
   force_detach_policies = true
 
-  tags = {
-    "gs:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"   = local.resource_group
-  }
+  tags = local.tags
 }
 
 // LogShipper: Permission to access buckets and SQS notifications
@@ -90,12 +86,9 @@ resource "aws_iam_role_policy_attachment" "log_shipper_role_bucket_access" {
 // LogShipper: SQS queue
 resource "aws_sqs_queue" "ingest_bucket_notifications" {
   sqs_managed_sse_enabled = true
-  name                    = "gs-log-forwarder-${local.log_forwarder_id}-ingest"
+  name                    = "ghost-${local.log_forwarder_id}-ingest"
 
-  tags = {
-    "gs:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"   = local.resource_group
-  }
+  tags = local.tags
 }
 
 // LogShipper: SQS policy for ingest bucket notifications
