@@ -1,7 +1,7 @@
 locals {
-  log_forwarder_id = var.log_forwarder_id
   resource_group   = var.resource_group
-  gcp_sts_sa_id    = var.gcp_sts_sa_id
+  log_forwarder_id = "forwarder_id_from_ghost_resource"
+  gcp_sts_sa_id    = "gcp_account_id_from_resource"
   lambda_image     = "007807482039.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/forwarder:11fc3e9"
 }
 
@@ -225,7 +225,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 }
 
 // LogConverter: attach ability to get at the buckets
-resource "aws_iam_role_policy_attachment" "log_converted_bucket_access" {
+resource "aws_iam_role_policy_attachment" "log_converter_bucket_access" {
   policy_arn = aws_iam_policy.lambda_bucket_access.arn
   role       = aws_iam_role.log_converter_role.name
 }
