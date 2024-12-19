@@ -9,7 +9,7 @@ resource "aws_lambda_function" "log_converter" {
 
   environment {
     variables = {
-      INGEST_BUCKET = aws_s3_bucket.input_bucket.id
+      INGEST_BUCKET = aws_s3_bucket.ingest_bucket.id
       FORWARDER_ID  = local.log_forwarder_id
     }
   }
@@ -72,6 +72,17 @@ data "aws_iam_policy_document" "lambda_bucket_access" {
     resources = ["${aws_s3_bucket.ingest_bucket.arn}/*"]
     effect    = "Allow"
   }
+}
+
+// LogConverter: AWS managed policy for lambda function logging
+data "aws_iam_policy" "basic_execution_role" {
+  name = "AWSLambdaBasicExecutionRole"
+}
+
+// LogConverter: attach ability to create CloudWatch log groups and write logs
+resource "aws_iam_role_policy_attachment" "log_converter_logging" {
+  policy_arn = data.aws_iam_policy.basic_execution_role.arn
+  role       = aws_iam_role.log_converter_role.name
 }
 
 // LogConverter: invoke lambda function for new objects in the input bucket
