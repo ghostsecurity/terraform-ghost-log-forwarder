@@ -105,7 +105,7 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     id = "AWSLogs"
 
     filter {
-      prefix = "AWSLOGS"
+      prefix = "AWSLogs"
     }
 
     status = "Enabled"
