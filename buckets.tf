@@ -29,8 +29,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "input_bucket" {
 
 // IngestBucket: S3 bucket Ghost Platform gets cloud-agnostic logs from
 resource "aws_s3_bucket" "ingest_bucket" {
-  // TODO: rename this for consistency once the backend handles the path independently: GHO-8644
-  bucket = "gs-log-forwarder-${local.log_forwarder_id}-ingest"
+  bucket = "ghost-${local.log_forwarder_id}-ingest"
 
   force_destroy = true
   tags          = local.tags
