@@ -1,11 +1,12 @@
 locals {
-  resource_group   = var.resource_group
   log_forwarder_id = ghost_log_forwarder.forwarder.id
   lambda_image     = "007807482039.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/forwarder:11fc3e9"
-  tags = {
-    "ghost:forwarder_id" = local.log_forwarder_id
-    "ResourceGroup"      = local.resource_group
+  default_tags = {
+    "ghost:forwarder_id"   = local.log_forwarder_id
+    "ghost:forwarder_name" = var.name
   }
+
+  tags = merge(local.default_tags, var.tags)
 }
 
 // used to find Lambda image for this region
