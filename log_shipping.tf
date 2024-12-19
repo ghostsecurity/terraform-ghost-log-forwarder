@@ -134,6 +134,9 @@ resource "aws_s3_bucket_notification" "ingest" {
     events        = ["s3:ObjectCreated:*"]
     filter_suffix = ".gz"
   }
+  depends_on = [
+    aws_sqs_queue_policy.ingest_bucket_notifications,
+  ]
 }
 
 // LogShipper: report back to the Ghost platform the details necessary
