@@ -5,6 +5,15 @@ resource "aws_s3_bucket" "input_bucket" {
   tags = local.tags
 }
 
+// InputBucket: S3 object versioning is required in order for objects
+// to be replicated into this bucket.
+resource "aws_s3_bucket_versioning" "input" {
+  bucket = aws_s3_bucket.input_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 // InputBucket: Lifecycle. Clear out logs from the input bucket after a day.
 resource "aws_s3_bucket_lifecycle_configuration" "input_bucket" {
   bucket = aws_s3_bucket.input_bucket.id

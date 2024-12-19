@@ -73,3 +73,16 @@ data "aws_iam_policy_document" "lambda_bucket_access" {
     effect    = "Allow"
   }
 }
+
+// LogConverter: invoke lambda function for new objects in the input bucket
+resource "aws_s3_bucket_notification" "input" {
+  bucket = aws_s3_bucket.input_bucket.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.log_converter.arn
+    events              = ["s3:ObjectCreated:Put"]
+    filter_suffix       = ".gz"
+  }
+
+  depends_on = [aws_lambda_permission.log_converter]
+}
