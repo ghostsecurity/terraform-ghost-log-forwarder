@@ -125,6 +125,17 @@ resource "aws_sqs_queue_policy" "ingest_bucket_notifications" {
   queue_url = aws_sqs_queue.ingest_bucket_notifications.id
 }
 
+// LogShipper: Send notifications to queue for new files in ingest bucket
+resource "aws_s3_bucket_notification" "ingest" {
+  bucket = aws_s3_bucket.ingest_bucket.id
+
+  queue {
+    queue_arn     = aws_sqs_queue.ingest_bucket_notifications.arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_suffix = ".gz"
+  }
+}
+
 // LogShipper: report back to the Ghost platform the details necessary
 // for copying files from the ingest bucket using federate GCP identity.
 resource "ghost_aws_log_source" "source" {
