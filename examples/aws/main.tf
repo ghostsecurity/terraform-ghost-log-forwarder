@@ -16,6 +16,7 @@ provider "aws" {
 }
 
 provider "ghost" {
+  endpoint = "https://api.dev.ghostsecurity.com"
 }
 
 module "dev-alb-forwarder" {
@@ -24,7 +25,7 @@ module "dev-alb-forwarder" {
 }
 
 data "aws_s3_bucket" "source" {
-  bucket = "source-bucket-name"
+  bucket = "gs-lb-logs-dev"
 }
 
 data "aws_s3_bucket" "dest" {
@@ -105,7 +106,7 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     id = "AWSLogs"
 
     filter {
-      prefix = "AWSLOGS"
+      prefix = "AWSLogs"
     }
 
     status = "Enabled"
