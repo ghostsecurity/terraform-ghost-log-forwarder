@@ -16,7 +16,6 @@ provider "aws" {
 }
 
 provider "ghost" {
-  endpoint = "https://api.dev.ghostsecurity.com"
 }
 
 module "dev-alb-forwarder" {
@@ -25,7 +24,7 @@ module "dev-alb-forwarder" {
 }
 
 data "aws_s3_bucket" "source" {
-  bucket = "gs-lb-logs-dev"
+  bucket = "source-bucket-name"
 }
 
 data "aws_s3_bucket" "dest" {
