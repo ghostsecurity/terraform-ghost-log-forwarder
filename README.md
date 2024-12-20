@@ -47,7 +47,7 @@ data "aws_s3_bucket" "source" {
 # Deploy the Ghost log forwarder.
 # Change the name to something meaningful in your organization.
 module "dev-alb-forwarder" {
-  source = "ghostsecurity/ghost/log-forwarder"
+  source = "ghostsecurity/log-forwarder/ghost"
   name   = "example-forwarder"
 }
 
@@ -128,8 +128,6 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
   bucket = data.aws_s3_bucket.source.id
 
   rule {
-    id = "AWSLogs"
-
     filter {
       prefix = "AWSLogs"
     }
