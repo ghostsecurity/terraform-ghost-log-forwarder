@@ -1,6 +1,11 @@
 # terraform-ghost-log-forwarder
 The Ghost Security terraform module for log forwarding
 
+## Considerations
+- Ensure resources created in AWS are unique to avoid naming conflict errors.
+- S3 bucket versioning must be enabled on the `source` bucket to allow for S3 bucket replication to be configured.
+- Test `GHOST_API_KEY` using [ghost provider](https://github.com/ghostsecurity/terraform-provider-ghost) `make test-acc` command. Using an invalid or expired API key results in `unexpected status 401` error.
+
 <!-- BEGIN_TF_DOCS -->
 
 ## Providers
