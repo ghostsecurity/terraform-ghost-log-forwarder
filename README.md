@@ -128,8 +128,6 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
   bucket = data.aws_s3_bucket.source.id
 
   rule {
-    id = "AWSLogs"
-
     filter {
       prefix = "AWSLogs"
     }
