@@ -24,6 +24,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "input_bucket" {
     expiration {
       days = 1
     }
+    noncurrent_version_expiration {
+      noncurrent_days = 1
+    }
   }
 }
 
