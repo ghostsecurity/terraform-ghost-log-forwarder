@@ -31,7 +31,7 @@ Refer to the [Log Based Discovery](https://docs.ghostsecurity.com/en/articles/94
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_name"></a> [name](#input\_name) | The name for this log forwarder as it will be displayed in the Ghost platform UI. | `string` | n/a | yes |
-| <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to assign to all resources. By default resources are tagged with ghost:log\_forwarder\_id and ghost:forwarder\_name. | `map(string)` | `{}` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to assign to all resources. By default resources are tagged with ghost:forwarder\_id and ghost:forwarder\_name. | `map(string)` | `{}` | no |
 
 ## Resources
 

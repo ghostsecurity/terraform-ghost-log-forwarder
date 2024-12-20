@@ -8,7 +8,7 @@ variable "name" {
 }
 
 variable "tags" {
-  description = "Map of tags to assign to all resources. By default resources are tagged with ghost:log_forwarder_id and ghost:forwarder_name."
+  description = "Map of tags to assign to all resources. By default resources are tagged with ghost:forwarder_id and ghost:forwarder_name."
   type        = map(string)
   default     = {}
 }
