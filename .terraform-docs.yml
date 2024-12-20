@@ -15,7 +15,13 @@ sections:
   show: []
 
 content: |-
+  ## Example
+  The following example deploys a log forwarder and configures [S3 ojbect replication](https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication.html) to copy log files from an existing `source` S3 bucket.
 
+  ```hcl
+  {{ include "examples/aws/main.tf" }}
+  ```
+  
   {{ .Providers }}
 
   {{ .Outputs }}
@@ -23,12 +29,6 @@ content: |-
   {{ .Inputs }}
 
   {{ .Resources }}
-
-  ## Example
-
-  ```hcl
-  {{ include "examples/aws/main.tf" }}
-  ```
 
 output:
   file: "README.md"
