@@ -29,7 +29,7 @@ data "aws_s3_bucket" "source" {
 # Deploy the Ghost log forwarder.
 # Change the name to something meaningful in your organization.
 module "dev-alb-forwarder" {
-  source = "ghostsecurity/ghost/log-forwarder"
+  source = "ghostsecurity/log-forwarder/ghost"
   name   = "example-forwarder"
 }
 
