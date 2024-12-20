@@ -5,7 +5,7 @@ permissions:
   contents: read
 jobs:
   test:
-    name: Mocks
+    name: Docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
