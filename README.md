@@ -1,10 +1,15 @@
 # terraform-ghost-log-forwarder
-The Ghost Security terraform module for log forwarding
+Terraform module which deploys a [Ghost](https://ghostsecurity.com/) log forwarder to AWS for sending [ALB logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html) to the Ghost platform.
+
+Refer to the [Log Based Discovery](https://docs.ghostsecurity.com/en/articles/9471377-log-based-discovery-alpha) documentation for more on how this is used in the Ghost platform.
 
 ## Considerations
 - Ensure resources created in AWS are unique to avoid naming conflict errors.
 - S3 bucket versioning must be enabled on the `source` bucket to allow for S3 bucket replication to be configured.
-- Test `GHOST_API_KEY` using [ghost provider](https://github.com/ghostsecurity/terraform-provider-ghost) `make test-acc` command. Using an invalid or expired API key results in `unexpected status 401` error.
+- Only replicate new log files to the log forwarder bucket. Do not replicate existing objects.
+- The [ghost](https://registry.terraform.io/providers/ghostsecurity/ghost) provider requires an API key with `read:log_forwarders` and `write:log_forwarders` permissions.
+    - Use the [API Keys](https://app.ghostsecurity.com/settings/apikeys) page to generate a new key.
+    - Using an invalid or expired API key will result in an `unexpected status 401` error.
 
 <!-- BEGIN_TF_DOCS -->
 
@@ -80,23 +85,31 @@ provider "aws" {
   region = "us-east-2"
 }
 
+# Configure the provider. A valid API key must exist in the GHOST_API_KEY
+# environment variable with read:log_forwarders and write:log_forwarders permissions.
 provider "ghost" {
 }
 
-module "dev-alb-forwarder" {
-  source = "../../"
-  name   = "dev-alb-forwarder"
-}
-
+# This must be updated to reference an existing S3 bucket that is receiving logs
+# from your application load balancer.
 data "aws_s3_bucket" "source" {
   bucket = "source-bucket-name"
+}
+
+# Deploy the Ghost log forwarder.
+# Change the name to something meaningful in your organization.
+module "dev-alb-forwarder" {
+  source = "ghostsecurity/ghost/log-forwarder"
+  name   = "example-forwarder"
 }
 
 data "aws_s3_bucket" "dest" {
   bucket = module.dev-alb-forwarder.s3_input_bucket
 }
 
-// Copied from the AWS terraform docs
+# The following resources configure an example S3 replication policy to
+# copy logs from the source bucket to the log forwarder bucket so that they
+# will be processed and sent to the Ghost platform.
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"
@@ -111,7 +124,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 resource "aws_iam_role" "replication" {
-  name               = "ghost-dev-log-replication"
+  name               = "example-replication-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
@@ -153,7 +166,7 @@ data "aws_iam_policy_document" "replication" {
 }
 
 resource "aws_iam_policy" "replication" {
-  name   = "ghost-dev-log-replication"
+  name   = "example-replication-policy"
   policy = data.aws_iam_policy_document.replication.json
 }
 
