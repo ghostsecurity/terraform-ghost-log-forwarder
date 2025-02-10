@@ -33,22 +33,24 @@ provider "aws" {
   region = "us-east-2"
 }
 
-# Configure the provider. A valid API key must exist in the GHOST_API_KEY
-# environment variable with read:log_forwarders and write:log_forwarders permissions.
-provider "ghost" {
-}
-
 # This must be updated to reference an existing S3 bucket that is receiving logs
 # from your application load balancer.
 data "aws_s3_bucket" "source" {
   bucket = "source-bucket-name"
 }
 
+# The value in this secret must be a string literal that is the Ghost API key 
+# that can be created in your account by navigating to https://app.ghostsecurity.com/settings/apikeys
+data "aws_secretsmanager_secret" "ghost_api_key" {
+  name = "dev/ghost-api-key"
+}
+
 # Deploy the Ghost log forwarder.
 # Change the name to something meaningful in your organization.
 module "dev-alb-forwarder" {
-  source = "ghostsecurity/log-forwarder/ghost"
-  name   = "example-forwarder"
+  source             = "ghostsecurity/log-forwarder/ghost"
+  name               = "example-forwarder"
+  api_key_secret_arn = data.aws_secretsmanager_secret.ghost_api_key.arn
 }
 
 data "aws_s3_bucket" "dest" {
@@ -151,7 +153,6 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.81.0 |
-| <a name="provider_ghost"></a> [ghost](#provider\_ghost) | >= 0.1.0 |
 
 ## Outputs
 
@@ -163,38 +164,29 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_name"></a> [name](#input\_name) | The name for this log forwarder as it will be displayed in the Ghost platform UI. | `string` | n/a | yes |
+| <a name="input_api_key_secret_arn"></a> [api\_key\_secret\_arn](#input\_api\_key\_secret\_arn) | ARN of a secret in AWS secrets manager that contains a Ghost API key with write:logs permissions | `string` | n/a | yes |
+| <a name="input_api_url"></a> [api\_url](#input\_api\_url) | Base URL for the Ghost API | `string` | `"https://api.ghostsecurity.com"` | no |
+| <a name="input_name"></a> [name](#input\_name) | The name for this log forwarder. This must be unique within your AWS account. | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to assign to all resources. By default resources are tagged with ghost:forwarder\_id and ghost:forwarder\_name. | `map(string)` | `{}` | no |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_iam_policy.lambda_bucket_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.log_shipper_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.forwarder_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.log_converter_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role.log_shipper_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.log_converter_bucket_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.log_converter_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.log_shipper_role_bucket_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_function.log_converter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_permission.log_converter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
-| [aws_s3_bucket.ingest_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket.input_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_lifecycle_configuration.input_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
-| [aws_s3_bucket_notification.ingest](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_notification.input](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_versioning.input](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
-| [aws_sqs_queue.ingest_bucket_notifications](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
-| [aws_sqs_queue_policy.ingest_bucket_notifications](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue_policy) | resource |
-| [ghost_aws_log_source.source](https://registry.terraform.io/providers/ghostsecurity/ghost/latest/docs/resources/aws_log_source) | resource |
-| [ghost_log_forwarder.forwarder](https://registry.terraform.io/providers/ghostsecurity/ghost/latest/docs/resources/log_forwarder) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy.basic_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy_document.forwarder_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.lambda_bucket_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.log_shipper_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.log_shipper_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.s3_object_notification](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| [aws_secretsmanager_secret.api_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
 <!-- END_TF_DOCS -->

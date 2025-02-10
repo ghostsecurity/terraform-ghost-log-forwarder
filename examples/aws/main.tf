@@ -15,22 +15,24 @@ provider "aws" {
   region = "us-east-2"
 }
 
-# Configure the provider. A valid API key must exist in the GHOST_API_KEY
-# environment variable with read:log_forwarders and write:log_forwarders permissions.
-provider "ghost" {
-}
-
 # This must be updated to reference an existing S3 bucket that is receiving logs
 # from your application load balancer.
 data "aws_s3_bucket" "source" {
   bucket = "source-bucket-name"
 }
 
+# The value in this secret must be a string literal that is the Ghost API key 
+# that can be created in your account by navigating to https://app.ghostsecurity.com/settings/apikeys
+data "aws_secretsmanager_secret" "ghost_api_key" {
+  name = "dev/ghost-api-key"
+}
+
 # Deploy the Ghost log forwarder.
 # Change the name to something meaningful in your organization.
 module "dev-alb-forwarder" {
-  source = "ghostsecurity/log-forwarder/ghost"
-  name   = "example-forwarder"
+  source             = "ghostsecurity/log-forwarder/ghost"
+  name               = "example-forwarder"
+  api_key_secret_arn = data.aws_secretsmanager_secret.ghost_api_key.arn
 }
 
 data "aws_s3_bucket" "dest" {
