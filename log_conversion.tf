@@ -1,6 +1,6 @@
 // LogConverter: Lambda function
 resource "aws_lambda_function" "log_converter" {
-  function_name = "ghost-${local.log_forwarder_id}-function"
+  function_name = "ghost-${var.name}-function"
   image_uri     = local.lambda_image
   package_type  = "Image"
   architectures = ["arm64"]
@@ -9,8 +9,8 @@ resource "aws_lambda_function" "log_converter" {
 
   environment {
     variables = {
-      INGEST_BUCKET = aws_s3_bucket.ingest_bucket.id
-      FORWARDER_ID  = local.log_forwarder_id
+      GHOST_API_URL     = var.api_url
+      GHOST_API_KEY_ARN = var.api_key_secret_arn
     }
   }
 
@@ -27,7 +27,7 @@ resource "aws_lambda_permission" "log_converter" {
 
 // LogConverter: IAM role
 resource "aws_iam_role" "log_converter_role" {
-  name                  = "ghost-${local.log_forwarder_id}-lambda"
+  name                  = "ghost-${var.name}-lambda"
   assume_role_policy    = data.aws_iam_policy_document.lambda_assume_role.json
   path                  = "/"
   force_detach_policies = true
@@ -49,27 +49,30 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 
 // LogConverter: attach ability to get at the buckets
 resource "aws_iam_role_policy_attachment" "log_converter_bucket_access" {
-  policy_arn = aws_iam_policy.lambda_bucket_access.arn
+  policy_arn = aws_iam_policy.forwarder_lambda.arn
   role       = aws_iam_role.log_converter_role.name
 }
 
 // LogConverter: IAM policy
-resource "aws_iam_policy" "lambda_bucket_access" {
-  name        = "ghost-${local.log_forwarder_id}-access"
-  description = "IAM policy for Ghost Log Forwarder to access S3 buckets"
-  policy      = data.aws_iam_policy_document.lambda_bucket_access.json
+resource "aws_iam_policy" "forwarder_lambda" {
+  name        = "ghost-${var.name}-access"
+  description = "IAM policy for Ghost Log Forwarder to access S3 bucket and read Ghost API key secret"
+  policy      = data.aws_iam_policy_document.forwarder_lambda.json
 }
 
 // LogConverter: policy for bucket access
-data "aws_iam_policy_document" "lambda_bucket_access" {
+data "aws_iam_policy_document" "forwarder_lambda" {
   statement {
     actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.input_bucket.arn}/*"]
     effect    = "Allow"
   }
   statement {
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.ingest_bucket.arn}/*"]
+    actions = [
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:GetSecretValue",
+    ]
+    resources = [var.api_key_secret_arn]
     effect    = "Allow"
   }
 }

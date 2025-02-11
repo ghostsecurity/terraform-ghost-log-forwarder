@@ -1,8 +1,6 @@
 locals {
-  log_forwarder_id = ghost_log_forwarder.forwarder.id
-  lambda_image     = "007807482039.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/forwarder:v0.3.0"
+  lambda_image = "007807482039.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/forwarder:v0.5.0"
   default_tags = {
-    "ghost:forwarder_id"   = local.log_forwarder_id
     "ghost:forwarder_name" = var.name
   }
 

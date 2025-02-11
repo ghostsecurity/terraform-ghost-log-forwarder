@@ -1,6 +1,6 @@
 // InputBucket: S3 input bucket to be replicated to by customers
 resource "aws_s3_bucket" "input_bucket" {
-  bucket = "ghost-${local.log_forwarder_id}-input"
+  bucket_prefix = "ghost-input"
 
   force_destroy = true
   tags          = local.tags
@@ -28,12 +28,4 @@ resource "aws_s3_bucket_lifecycle_configuration" "input_bucket" {
       noncurrent_days = 1
     }
   }
-}
-
-// IngestBucket: S3 bucket Ghost Platform gets cloud-agnostic logs from
-resource "aws_s3_bucket" "ingest_bucket" {
-  bucket = "ghost-${local.log_forwarder_id}-ingest"
-
-  force_destroy = true
-  tags          = local.tags
 }
