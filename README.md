@@ -7,9 +7,8 @@ Refer to the [Log Based Discovery](https://docs.ghostsecurity.com/en/articles/94
 - Ensure resources created in AWS are unique to avoid naming conflict errors.
 - S3 bucket versioning must be enabled on the `source` bucket to allow for S3 bucket replication to be configured.
 - Only replicate new log files to the log forwarder bucket. Do not replicate existing objects.
-- The [ghost](https://registry.terraform.io/providers/ghostsecurity/ghost) provider requires an API key with `read:log_forwarders` and `write:log_forwarders` permissions.
-    - Use the [API Keys](https://app.ghostsecurity.com/settings/apikeys) page to generate a new key.
-    - Using an invalid or expired API key will result in an `unexpected status 401` error.
+- The module expects a Ghost API key with `write:logs` permissions as the value in the `api_key_secret_arn` input variable.
+    - Use the [API Keys](https://app.ghostsecurity.com/settings/apikeys) page to generate a new key and store this in AWS secrets manager.
 
 <!-- BEGIN_TF_DOCS -->
 ## Example
