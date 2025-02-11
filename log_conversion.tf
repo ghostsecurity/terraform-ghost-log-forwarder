@@ -17,11 +17,6 @@ resource "aws_lambda_function" "log_converter" {
   tags = local.tags
 }
 
-// Ensure the secret with the API key exists
-data "aws_secretsmanager_secret" "api_key" {
-  arn = var.api_key_secret_arn
-}
-
 // LogConverter: Lambda permission
 resource "aws_lambda_permission" "log_converter" {
   action        = "lambda:InvokeFunction"
@@ -77,7 +72,7 @@ data "aws_iam_policy_document" "forwarder_lambda" {
       "secretsmanager:DescribeSecret",
       "secretsmanager:GetSecretValue",
     ]
-    resources = [data.aws_secretsmanager_secret.api_key.arn]
+    resources = [var.api_key_secret_arn]
     effect    = "Allow"
   }
 }
