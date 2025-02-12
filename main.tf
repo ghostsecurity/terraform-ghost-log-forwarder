@@ -1,5 +1,5 @@
 locals {
-  lambda_image = "007807482039.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/forwarder:v0.5.0"
+  lambda_image = "007807482039.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/forwarder:v0.5.1"
   default_tags = {
     "ghost:forwarder_name" = var.name
   }
