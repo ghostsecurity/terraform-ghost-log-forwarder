@@ -94,8 +94,14 @@ resource "aws_s3_bucket_notification" "input" {
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.log_converter.arn
-    events              = ["s3:ObjectCreated:Put"]
+    events              = ["s3:ObjectCreated:*"]
     filter_suffix       = ".gz"
+  }
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.log_converter.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_suffix       = ".log"
   }
 
   depends_on = [aws_lambda_permission.log_converter]
