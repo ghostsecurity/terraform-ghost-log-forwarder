@@ -157,6 +157,8 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
 
 | Name | Description |
 |------|-------------|
+| <a name="output_lambda_arn"></a> [lambda\_arn](#output\_lambda\_arn) | The ARN of the Log Processing Lambda Function |
+| <a name="output_lambda_role_arn"></a> [lambda\_role\_arn](#output\_lambda\_role\_arn) | The ARN of the IAM Role used by the Log Processing Lambda Function to access Secrets and S3 |
 | <a name="output_s3_input_bucket"></a> [s3\_input\_bucket](#output\_s3\_input\_bucket) | The name of the input bucket |
 
 ## Inputs
